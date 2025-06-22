@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+
 import '../utils/colors.dart';
 
 class MetricCard extends StatelessWidget {
@@ -12,11 +13,10 @@ class MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = CupertinoTheme.of(context);
 
-    // Replace Card with a styled Container
     return Container(
-      decoration: BoxDecoration(
-        color: theme.barBackgroundColor, // Use a theme-appropriate color
-        borderRadius: BorderRadius.circular(12),
+      decoration: ShapeDecoration(
+        color: theme.barBackgroundColor,
+        shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,10 +31,7 @@ class MetricCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              value,
-              style: theme.textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text(value, style: theme.textTheme.navLargeTitleTextStyle.copyWith(fontWeight: FontWeight.bold)),
           ],
         ),
       ),

@@ -18,26 +18,25 @@ class OverviewScreen extends StatelessWidget {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Overview'),
+        leading: const Text('Overview'),
         trailing: CupertinoButton(onPressed: () => _showAddFlow(context), child: const Icon(CupertinoIcons.add)),
       ),
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        children: [
-          _buildMetricsSection(vm),
-          const SizedBox(height: 24),
-          _buildCategoriesSection(context, vm),
-          if (vm.nextDueDocs.isNotEmpty) ...[const SizedBox(height: 24), _buildUpNextSection(context, vm)],
-        ],
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          children: [
+            _buildMetricsSection(vm),
+            const SizedBox(height: 24),
+            _buildCategoriesSection(context, vm),
+            if (vm.nextDueDocs.isNotEmpty) ...[const SizedBox(height: 24), _buildUpNextSection(context, vm)],
+          ],
+        ),
       ),
     );
   }
 
   void _showAddFlow(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => AddEditCategorySheet(),
-    );
+    showCupertinoModalPopup(context: context, builder: (_) => AddEditCategorySheet());
   }
 
   void _onCategoryTapped(BuildContext context, SmartCategory category) {
@@ -45,7 +44,6 @@ class OverviewScreen extends StatelessWidget {
   }
 
   void _onCategoryLongPressed(BuildContext context, SmartCategory category) {
-    // Use CupertinoAlertDialog for the native iOS look
     showCupertinoDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -129,7 +127,7 @@ class OverviewScreen extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
-          child: Text('Subscriptions', style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle),
+          child: Text('Subscriptions', style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
         ),
         if (vm.categories.isEmpty)
           const Center(
@@ -140,7 +138,6 @@ class OverviewScreen extends StatelessWidget {
             (cat) => Padding(
               padding: const EdgeInsets.only(bottom: 10.0),
               child: CategoryCard(
-                // Note: This custom widget might also need conversion
                 category: cat,
                 onTap: () => _onCategoryTapped(context, cat),
                 onLongPress: () => _onCategoryLongPressed(context, cat),
