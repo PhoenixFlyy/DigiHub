@@ -1,7 +1,7 @@
 import 'package:digi_hub/providers/overview_view_model.dart';
 import 'package:digi_hub/screens/overview_screen.dart';
 import 'package:digi_hub/utils/constants.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -13,19 +13,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ChangeNotifierProvider makes the OverviewViewModel available to all
-    // widgets below it in the tree. This is Flutter's equivalent to @StateObject.
     return ChangeNotifierProvider(
       create: (context) => OverviewViewModel(),
-      child: MaterialApp(
+      child: CupertinoApp(
         debugShowCheckedModeBanner: false,
         title: appTitle,
-        themeMode: ThemeMode.dark,
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
-          useMaterial3: true,
-          // Custom card theme to match the SwiftUI look
-          cardTheme: CardThemeData(elevation: 1, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+        theme: CupertinoThemeData(
+          brightness: Brightness.dark
         ),
         home: const OverviewScreen(),
       ),
