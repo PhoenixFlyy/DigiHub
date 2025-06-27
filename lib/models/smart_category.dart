@@ -1,13 +1,15 @@
 import 'package:digi_hub/models/smart_document.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:uuid/uuid.dart';
 
+import '../utils/icon_mapper.dart';
 import 'main_category_type.dart';
 
 class SmartCategory {
   String id;
   MainCategoryType mainType;
   String name;
-  String iconName;
+  IconData icon;
   String colorHex;
   List<SmartDocument> documents;
 
@@ -15,7 +17,7 @@ class SmartCategory {
     String? id,
     required this.mainType,
     required this.name,
-    required this.iconName,
+    required this.icon,
     required this.colorHex,
     required this.documents,
   }) : id = id ?? const Uuid().v4();
@@ -29,7 +31,7 @@ class SmartCategory {
       id: json['id'],
       mainType: MainCategoryType.values[json['mainType']],
       name: json['name'],
-      iconName: json['iconName'],
+      icon: stringToIcon(json['iconName']),
       colorHex: json['colorHex'],
       documents: (json['documents'] as List).map((i) => SmartDocument.fromJson(i)).toList(),
     );
@@ -40,7 +42,7 @@ class SmartCategory {
       'id': id,
       'mainType': mainType.index,
       'name': name,
-      'iconName': iconName,
+      'iconName': iconToString(icon),
       'colorHex': colorHex,
       'documents': documents.map((i) => i.toJson()).toList(),
     };

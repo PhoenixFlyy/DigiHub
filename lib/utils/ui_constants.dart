@@ -1,0 +1,1 @@
+double roundedSuperellipseBorderRadius = 12.0;

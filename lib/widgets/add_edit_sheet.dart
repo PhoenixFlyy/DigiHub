@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../models/main_category_type.dart';
 import '../models/smart_category.dart';
 import '../models/smart_document.dart';
-import '../providers/overview_view_model.dart';
 import '../utils/colors.dart';
 
 class AddEditCategorySheet extends StatefulWidget {
@@ -48,7 +47,7 @@ class _AddEditCategorySheetState extends State<AddEditCategorySheet> {
       _selectedType = widget.category!.mainType;
       _selectedFrequency = doc?.interval ?? 'Monatlich';
       _selectedColor = HexColor.fromHex(widget.category!.colorHex);
-      _selectedIcon = widget.category!.iconName;
+      _selectedIcon = widget.category!.icon as String;
     }
   }
 
@@ -70,7 +69,7 @@ class _AddEditCategorySheetState extends State<AddEditCategorySheet> {
       return;
     }
 
-    final vm = context.read<OverviewViewModel>();
+    final vm = context.read();
     final amount = _amountController.text.replaceAll(',', '.');
 
     final extraFields = {

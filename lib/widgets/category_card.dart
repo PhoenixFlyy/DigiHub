@@ -31,7 +31,7 @@ class CategoryCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
-            child: Icon(getIconData(category.iconName), color: color, size: 22),
+            child: Icon(category.icon, color: color, size: 22),
           ),
           title: Text(category.name, style: theme.textTheme.textStyle),
           subtitle: Row(

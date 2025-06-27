@@ -93,7 +93,7 @@ class CategoryDetailScreen extends StatelessWidget {
               color: CupertinoColors.white,
               shape: BoxShape.circle,
             ),
-            child: Icon(getIconData(category.iconName), size: 40, color: headerColor),
+            child: Icon(category.icon, size: 40, color: headerColor),
           ),
           const SizedBox(height: 16),
           if (doc.nextDueDate != null)
