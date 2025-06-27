@@ -12,7 +12,7 @@ class UpcomingSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+          padding: const EdgeInsets.only(bottom: categoriesColumnSpacingSize),
           child: Text(upcomingSectionTitle, style: theme.textTheme.navTitleTextStyle),
         ),
         Container(

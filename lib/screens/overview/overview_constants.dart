@@ -5,14 +5,14 @@ const double categoriesColumnSpacingSize = 10.0;
 
 // Metrics Section
 const String monthlyAbo = "Abo monatlich";
-const String averageAbo = "Ø Nicht-Abo";
+const String averageAbo = "Ø Nicht-Abo / Monat";
 
 // Categories Section
-const String categoriesSectionTitle = "Subscriptions";
+const String categoriesSectionTitle = "Gesamt";
 const String categoriesDeleteTitle = "Löschen?";
 const String categoriesDeleteContent = "Willst du das Objekt wirklich löschen?";
 const String categoriesDeleteCancel = "Abbrechen";
 const String categoriesDeleteConfirm = "Löschen";
 
 // Up Next Section
-const String upcomingSectionTitle = "Up next";
+const String upcomingSectionTitle = "Anstehend";

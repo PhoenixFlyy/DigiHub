@@ -42,7 +42,7 @@ class CategoryDetailScreen extends StatelessWidget {
                 onPressed: () {
                   showCupertinoModalPopup(
                     context: context,
-                    builder: (_) => AddEditCategorySheet(category: category), // "edit" mode
+                    builder: (_) => AddCategorySheet(), // "edit" mode
                   );
                 },
               ),

@@ -1,313 +1,222 @@
+import 'package:digi_hub/models/main_category_type.dart';
+import 'package:digi_hub/models/smart_category.dart';
+import 'package:digi_hub/utils/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:provider/provider.dart';
 
-import '../models/main_category_type.dart';
-import '../models/smart_category.dart';
 import '../models/smart_document.dart';
-import '../utils/colors.dart';
 
-class AddEditCategorySheet extends StatefulWidget {
-  final SmartCategory? category;
-  const AddEditCategorySheet({super.key, this.category});
+class AddCategorySheet extends StatefulWidget {
+  const AddCategorySheet({super.key});
 
   @override
-  State<AddEditCategorySheet> createState() => _AddEditCategorySheetState();
+  State<AddCategorySheet> createState() => _AddCategorySheetState();
 }
 
-class _AddEditCategorySheetState extends State<AddEditCategorySheet> {
-  // Form validation is now manual, so the key is less critical but can be kept for other purposes.
-  final _formKey = GlobalKey<FormState>();
-
-  late TextEditingController _nameController;
-  late TextEditingController _amountController;
-  late TextEditingController _versicherungsnummerController;
-  late TextEditingController _phoneController;
-  late TextEditingController _emailController;
-
+class _AddCategorySheetState extends State<AddCategorySheet> {
+  final _nameController = TextEditingController();
+  final _amountController = TextEditingController();
   MainCategoryType _selectedType = MainCategoryType.subscription;
-  String _selectedFrequency = 'Monatlich';
-  Color _selectedColor = CupertinoColors.systemOrange;
-  String _selectedIcon = 'folder';
-
-  bool get _isEditMode => widget.category != null;
-
-  @override
-  void initState() {
-    super.initState();
-    final doc = widget.category?.documents.first;
-
-    _nameController = TextEditingController(text: doc?.title ?? '');
-    _amountController = TextEditingController(text: doc?.extractedFields['Betrag'] ?? '');
-    _versicherungsnummerController = TextEditingController(text: doc?.extractedFields['Versicherungsnummer'] ?? '');
-    _phoneController = TextEditingController(text: doc?.extractedFields['Telefon'] ?? '');
-    _emailController = TextEditingController(text: doc?.extractedFields['Email'] ?? '');
-
-    if (_isEditMode) {
-      _selectedType = widget.category!.mainType;
-      _selectedFrequency = doc?.interval ?? 'Monatlich';
-      _selectedColor = HexColor.fromHex(widget.category!.colorHex);
-      _selectedIcon = widget.category!.icon as String;
-    }
-  }
+  Color _selectedColor = CupertinoColors.systemBlue;
+  IconData _selectedIcon = CupertinoIcons.folder;
+  final List<IconData> _availableIcons = [
+    CupertinoIcons.folder,
+    CupertinoIcons.tv,
+    CupertinoIcons.money_dollar_circle,
+    CupertinoIcons.house_fill,
+    CupertinoIcons.car_fill,
+    CupertinoIcons.heart_fill,
+    CupertinoIcons.book_fill,
+    CupertinoIcons.gift_fill,
+    CupertinoIcons.shopping_cart,
+    CupertinoIcons.airplane,
+  ];
 
   @override
   void dispose() {
     _nameController.dispose();
     _amountController.dispose();
-    _versicherungsnummerController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
     super.dispose();
   }
 
   void _submitForm() {
-    // Manual validation
     if (_nameController.text.isEmpty) {
-      // In a real app, you'd show an alert here.
-      debugPrint("Validation failed: Name is empty");
+      debugPrint("Validation failed: Name is required.");
       return;
     }
-
-    final vm = context.read();
-    final amount = _amountController.text.replaceAll(',', '.');
-
-    final extraFields = {
-      "Betrag": _amountController.text,
-      "Frequenz": _selectedFrequency,
-      "Versicherungsnummer": _versicherungsnummerController.text,
-      "Telefon": _phoneController.text,
-      "Email": _emailController.text,
-    };
-
-    if (_isEditMode) {
-      final updatedDoc = SmartDocument(
-        id: widget.category!.documents.first.id,
-        title: _nameController.text,
-        cost: double.tryParse(amount),
-        interval: _selectedFrequency,
-        extractedFields: extraFields,
-        attachments: widget.category!.documents.first.attachments,
-      );
-      vm.updateCategory(
-        originalCategory: widget.category!,
-        updatedDoc: updatedDoc,
-        icon: _selectedIcon,
-        color: '#${_selectedColor.value.toRadixString(16).substring(2)}',
-      );
-    } else {
-      vm.addCategory(
-        mainType: _selectedType,
-        name: _nameController.text,
-        iconName: _selectedIcon,
-        colorHex: '#${_selectedColor.value.toRadixString(16).substring(2)}',
-        extraFields: extraFields,
-        attachments: [],
-      );
-    }
-    Navigator.pop(context);
+    final newDoc = SmartDocument(
+      title: _nameController.text,
+      cost: double.tryParse(_amountController.text.replaceAll(',', '.')),
+      extractedFields: {},
+    );
+    final newCategory = SmartCategory(
+      name: _nameController.text,
+      mainType: _selectedType,
+      icon: _selectedIcon,
+      colorHex: _selectedColor.toHex(),
+      documents: [newDoc],
+    );
+    Navigator.of(context).pop(newCategory);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Wrap with CupertinoPageScaffold for proper background and layout
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(_isEditMode ? 'Objekt bearbeiten' : 'Kategorie anlegen'),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Text('Abbrechen'),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Text(_isEditMode ? 'Speichern' : 'Anlegen', style: const TextStyle(fontWeight: FontWeight.bold)),
-          onPressed: _submitForm,
-        ),
-      ),
-      child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            children: [
-              CupertinoFormSection.insetGrouped(
-                header: const Text('Allgemein'),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildNavBar(),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
                 children: [
-                  CupertinoFormRow(
-                    prefix: const Text('Name'),
-                    child: CupertinoTextField(
-                      controller: _nameController,
-                      placeholder: 'z.B. Netflix Abo',
-                      textAlign: TextAlign.end,
-                    ),
+                  CupertinoFormSection.insetGrouped(
+                    header: const Text('Details'),
+                    children: [
+                      _buildTextFieldRow('Name', _nameController, 'z.B. Netflix Abo'),
+                      _buildTextFieldRow(
+                        'Betrag (€)',
+                        _amountController,
+                        '12,99',
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      ),
+                      _buildPickerRow(
+                        label: 'Kategorie',
+                        value: _selectedType.rawValue,
+                        onTap: () => _showPicker<MainCategoryType>(
+                          items: MainCategoryType.values,
+                          initialItem: _selectedType,
+                          itemBuilder: (type) => Text(type.rawValue),
+                          onSelectedItemChanged: (newType) => setState(() => _selectedType = newType),
+                        ),
+                      ),
+                    ],
                   ),
-                  CupertinoFormRow(
-                    prefix: const Text('Betrag (€)'),
-                    child: CupertinoTextField(
-                      controller: _amountController,
-                      placeholder: '12,99',
-                      textAlign: TextAlign.end,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    ),
+                  CupertinoFormSection.insetGrouped(
+                    header: const Text('Darstellung'),
+                    children: [
+                      _buildPickerRow(
+                        label: 'Farbe',
+                        valueWidget: Container(width: 28, height: 28, color: _selectedColor),
+                        onTap: _showColorPicker,
+                      ),
+                      _buildPickerRow(
+                        label: 'Symbol',
+                        valueWidget: Icon(_selectedIcon),
+                        onTap: () => _showPicker<IconData>(
+                          items: _availableIcons,
+                          initialItem: _selectedIcon,
+                          itemBuilder: (icon) => Icon(icon),
+                          onSelectedItemChanged: (newIcon) => setState(() => _selectedIcon = newIcon),
+                        ),
+                      ),
+                    ],
                   ),
-                  if (!_isEditMode)
-                    _buildPickerRow<MainCategoryType>(
-                      label: 'Kategorie',
-                      value: _selectedType,
-                      items: MainCategoryType.values,
-                      onChanged: (newValue) => setState(() => _selectedType = newValue),
-                      itemBuilder: (type) => Text(type.rawValue),
-                    ),
                 ],
-              ),
-              if (_selectedType == MainCategoryType.insurance)
-                CupertinoFormSection.insetGrouped(
-                  header: const Text('Versicherungsdetails'),
-                  children: _buildInsuranceFields(),
-                ),
-              CupertinoFormSection.insetGrouped(
-                header: const Text('Darstellung'),
-                children: [
-                  _buildColorPicker(context),
-                  _buildIconPicker(),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildInsuranceFields() {
-    return [
-      CupertinoFormRow(
-        prefix: const Text('Vers.-Nr.'),
-        child: CupertinoTextField(
-            controller: _versicherungsnummerController, placeholder: 'Optional', textAlign: TextAlign.end),
-      ),
-      CupertinoFormRow(
-        prefix: const Text('Telefon'),
-        child: CupertinoTextField(
-            controller: _phoneController,
-            placeholder: 'Optional',
-            textAlign: TextAlign.end,
-            keyboardType: TextInputType.phone),
-      ),
-      CupertinoFormRow(
-        prefix: const Text('Email'),
-        child: CupertinoTextField(
-            controller: _emailController,
-            placeholder: 'Optional',
-            textAlign: TextAlign.end,
-            keyboardType: TextInputType.emailAddress),
-      ),
-    ];
-  }
-
-  Widget _buildColorPicker(BuildContext context) {
-    return CupertinoListTile(
-      title: const Text('Farbe'),
-      trailing: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          color: _selectedColor,
-          shape: BoxShape.circle,
-          border: Border.all(color: CupertinoColors.separator, width: 0.5),
-        ),
-      ),
-      onTap: () {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Farbe auswählen'),
-            content: SingleChildScrollView(
-              child: ColorPicker(
-                pickerColor: _selectedColor,
-                onColorChanged: (color) => setState(() => _selectedColor = color),
-                pickerAreaHeightPercent: 0.8,
               ),
             ),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.pop(context),
-              )
-            ],
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildIconPicker() {
-    return _buildPickerRow<String>(
-      label: 'Symbol',
-      value: _selectedIcon,
-      items: availableIconNames,
-      onChanged: (newValue) => setState(() => _selectedIcon = newValue),
-      itemBuilder: (name) => Row(
+  Widget _buildNavBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 50,
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: CupertinoColors.separator.resolveFrom(context))),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(getIconData(name), color: CupertinoColors.label),
-          const SizedBox(width: 8),
-          Text(name),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: const Text('Abbrechen'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          const Text('Neue Kategorie', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+          CupertinoButton(padding: EdgeInsets.zero, onPressed: _submitForm, child: const Text('Anlegen')),
         ],
       ),
     );
   }
 
-  // Helper for creating picker rows
-  Widget _buildPickerRow<T>({
-    required String label,
-    required T value,
-    required List<T> items,
-    required Widget Function(T) itemBuilder,
-    required ValueChanged<T> onChanged,
+  Widget _buildTextFieldRow(
+    String label,
+    TextEditingController controller,
+    String placeholder, {
+    TextInputType? keyboardType,
   }) {
+    return CupertinoFormRow(
+      prefix: Text(label),
+      child: CupertinoTextField(
+        controller: controller,
+        placeholder: placeholder,
+        textAlign: TextAlign.end,
+        keyboardType: keyboardType,
+      ),
+    );
+  }
+
+  Widget _buildPickerRow({required String label, String? value, Widget? valueWidget, required VoidCallback onTap}) {
     return CupertinoListTile(
       title: Text(label),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          itemBuilder(value),
+          if (valueWidget != null) valueWidget else Text(value ?? ''),
           const SizedBox(width: 8),
-          const Icon(CupertinoIcons.chevron_up_chevron_down),
+          const Icon(CupertinoIcons.chevron_forward, size: 20, color: CupertinoColors.tertiaryLabel),
         ],
       ),
-      onTap: () => _showPicker(context, items: items, initialItem: value, itemBuilder: itemBuilder, onSelectedItemChanged: (index) => onChanged(items[index])),
+      onTap: onTap,
     );
   }
 
-  // Helper to show a CupertinoPicker
-  void _showPicker<T>(
-      BuildContext context, {
-        required List<T> items,
-        required T initialItem,
-        required Widget Function(T) itemBuilder,
-        required ValueChanged<int> onSelectedItemChanged,
-      }) {
-    final initialIndex = items.indexOf(initialItem);
-    final controller = FixedExtentScrollController(initialItem: initialIndex > -1 ? initialIndex : 0);
+  void _showColorPicker() {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Farbe auswählen'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: _selectedColor,
+            onColorChanged: (color) => setState(() => _selectedColor = color),
+            pickerAreaHeightPercent: 0.8,
+            enableAlpha: false,
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(isDefaultAction: true, child: const Text('OK'), onPressed: () => Navigator.pop(context)),
+        ],
+      ),
+    );
+  }
 
+  void _showPicker<T>({
+    required List<T> items,
+    required T initialItem,
+    required Widget Function(T) itemBuilder,
+    required ValueChanged<T> onSelectedItemChanged,
+  }) {
+    final initialIndex = items.indexOf(initialItem);
     showCupertinoModalPopup<void>(
       context: context,
       builder: (BuildContext context) => Container(
         height: 250,
-        padding: const EdgeInsets.only(top: 6.0),
-        margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        color: CupertinoColors.systemBackground.resolveFrom(context),
+        color: CupertinoTheme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
           top: false,
           child: CupertinoPicker(
-            scrollController: controller,
-            magnification: 1.22,
-            squeeze: 1.2,
-            useMagnifier: true,
+            scrollController: FixedExtentScrollController(initialItem: initialIndex),
             itemExtent: 32.0,
-            onSelectedItemChanged: onSelectedItemChanged,
-            children: items.map((T item) => Center(child: itemBuilder(item))).toList(),
+            onSelectedItemChanged: (index) => onSelectedItemChanged(items[index]),
+            children: items.map((item) => Center(child: itemBuilder(item))).toList(),
           ),
         ),
       ),
